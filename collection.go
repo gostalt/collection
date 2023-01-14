@@ -129,3 +129,9 @@ func (c collection[T]) Chan() <-chan T {
 
 	return ch
 }
+
+func (c collection[T]) Concat(val collection[T]) collection[T] {
+	new := c.Append(val.All()...)
+
+	return new
+}

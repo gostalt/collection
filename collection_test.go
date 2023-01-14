@@ -150,3 +150,12 @@ func TestChan(t *testing.T) {
 
 	assert.Equal(t, col.All(), vals)
 }
+
+func TestConcat(t *testing.T) {
+	first := collection.From([]int{1, 2, 3})
+	second := collection.From([]int{4, 5, 6})
+
+	new := first.Concat(second)
+
+	assert.Equal(t, []int{1, 2, 3, 4, 5, 6}, new.All())
+}
