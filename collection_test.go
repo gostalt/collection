@@ -173,3 +173,12 @@ func TestConcat(t *testing.T) {
 
 	assert.Equal(t, []int{1, 2, 3, 4, 5, 6}, new.All())
 }
+
+func TestChunk(t *testing.T) {
+	orig := collection.From([]int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10})
+	chunks := orig.Chunk(4)
+
+	assert.Equal(t, orig.All()[0:4], chunks[0])
+	assert.Equal(t, orig.All()[4:8], chunks[1])
+	assert.Equal(t, orig.All()[8:10], chunks[2])
+}

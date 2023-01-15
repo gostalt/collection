@@ -1,5 +1,9 @@
 package collection
 
+import (
+	"math"
+)
+
 type collection[T any] struct {
 	contents []T
 }
@@ -144,4 +148,22 @@ func (c collection[T]) Concat(val collection[T]) collection[T] {
 	new := c.Append(val.All()...)
 
 	return new
+}
+
+func (c collection[T]) Chunk(per int) [][]T {
+	count := int(math.Ceil(float64(len(c.contents)) / float64(per)))
+	chunks := make([][]T, count)
+
+	for i := range chunks {
+		chunks[i] = make([]T, 0, per)
+		for j := 0; j < per; j++ {
+			offset := i*per + j
+			if offset >= c.Count() {
+				break
+			}
+
+			chunks[i] = append(chunks[i], c.At(offset))
+		}
+	}
+	return chunks
 }
