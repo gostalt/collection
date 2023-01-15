@@ -41,3 +41,37 @@ func (c numericCollection[T]) Average64() float64 {
 
 	return float64(sum) / float64(count)
 }
+
+func (c numericCollection[T]) Min() T {
+	var min T
+	if c.Count() == 0 {
+		return 0
+	}
+
+	min = c.At(0)
+
+	for _, v := range c.contents {
+		if v < min {
+			min = v
+		}
+	}
+
+	return min
+}
+
+func (c numericCollection[T]) Max() T {
+	var max T
+	if c.Count() == 0 {
+		return 0
+	}
+
+	max = c.At(0)
+
+	for _, v := range c.contents {
+		if v > max {
+			max = v
+		}
+	}
+
+	return max
+}

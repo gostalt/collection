@@ -17,3 +17,15 @@ func TestAverage(t *testing.T) {
 	f64 := collection.FromNumeric([]int{1, 2, 3, 4, 5, 6}).Average64()
 	assert.Equal(t, 3.5, f64)
 }
+
+func TestMin(t *testing.T) {
+	min := collection.FromNumeric([]int{3, 2, 8, 1, 2}).Min()
+
+	assert.Equal(t, 1, min)
+}
+
+func TestMax(t *testing.T) {
+	max := collection.FromNumeric([]int{3, 2, 8, 1, 2}).Max()
+
+	assert.Equal(t, 8, max)
+}
