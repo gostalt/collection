@@ -87,6 +87,20 @@ func TestHas(t *testing.T) {
 	assert.Equal(t, false, failure)
 }
 
+func TestHasNo(t *testing.T) {
+	failure := collection.From([]int{1, 2, 3}).HasNo(func(i int, value int) bool {
+		return value == 3
+	})
+
+	assert.Equal(t, false, failure)
+
+	success := collection.From([]string{"thomas", "smith"}).HasNo(func(i int, value string) bool {
+		return value == "another"
+	})
+
+	assert.Equal(t, true, success)
+}
+
 func TestCount(t *testing.T) {
 	count := collection.From([]int{1, 3, 5}).Count()
 	assert.Equal(t, 3, count)

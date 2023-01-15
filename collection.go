@@ -83,6 +83,16 @@ func (c collection[T]) Has(predicate func(i int, value T) bool) bool {
 	return false
 }
 
+func (c collection[T]) HasNo(predicate func(i int, value T) bool) bool {
+	for i, v := range c.contents {
+		if predicate(i, v) {
+			return false
+		}
+	}
+
+	return true
+}
+
 func (c collection[T]) Count() int {
 	return len(c.contents)
 }
