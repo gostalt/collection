@@ -4,11 +4,11 @@ import (
 	"math"
 )
 
-type collection[T any] struct {
+type collection[T comparable] struct {
 	contents []T
 }
 
-func From[T any](slice []T) collection[T] {
+func From[T comparable](slice []T) collection[T] {
 	return collection[T]{
 		contents: slice,
 	}
@@ -166,4 +166,18 @@ func (c collection[T]) Chunk(per int) [][]T {
 		}
 	}
 	return chunks
+}
+
+func (c collection[T]) Unique() collection[T] {
+	new := collection[T]{}
+
+	for _, v := range c.contents {
+		if new.HasNo(func(i int, value T) bool {
+			return value == v
+		}) {
+			new.contents = append(new.contents, v)
+		}
+	}
+
+	return new
 }

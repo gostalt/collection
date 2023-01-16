@@ -182,3 +182,9 @@ func TestChunk(t *testing.T) {
 	assert.Equal(t, orig.All()[4:8], chunks[1])
 	assert.Equal(t, orig.All()[8:10], chunks[2])
 }
+
+func TestUnique(t *testing.T) {
+	orig := collection.From([]int{1, 2, 3, 1, 1, 2, 2, 3, 3}).Unique()
+
+	assert.Equal(t, []int{1, 2, 3}, orig.All())
+}
