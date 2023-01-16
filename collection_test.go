@@ -222,3 +222,10 @@ func TestSplit(t *testing.T) {
 	assert.Equal(t, []int{1, 2, 3}, values[0].All())
 	assert.Equal(t, []int{4, 5, 6}, values[1].All())
 }
+
+func TestDiff(t *testing.T) {
+	first := collection.From([]int{1, 2, 3, 4, 5})
+	diff := first.Diff(collection.From([]int{2, 5}))
+
+	assert.Equal(t, []int{1, 3, 4}, diff.All())
+}

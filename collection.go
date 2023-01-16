@@ -212,3 +212,11 @@ func (c collection[T]) Split(i int) []collection[T] {
 
 	return []collection[T]{one, two}
 }
+
+func (c collection[T]) Diff(comp collection[T]) collection[T] {
+	return c.Filter(func(i int, v T) bool {
+		return comp.HasNo(func(i int, value T) bool {
+			return value == v
+		})
+	})
+}
