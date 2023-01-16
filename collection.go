@@ -198,3 +198,17 @@ func (c collection[T]) Map(fn func(i int, value T) T) collection[T] {
 
 	return new
 }
+
+func (c *collection[T]) Pop(count int) collection[T] {
+	split := c.Split(c.Count() - count)
+	c.contents = c.contents[:len(c.contents)-count]
+
+	return split[1]
+}
+
+func (c collection[T]) Split(i int) []collection[T] {
+	one := From(c.contents[:i])
+	two := From(c.contents[i:])
+
+	return []collection[T]{one, two}
+}

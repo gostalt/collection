@@ -202,3 +202,23 @@ func TestMap(t *testing.T) {
 
 	assert.Equal(t, []string{"lions", "tigers", "bears"}, pluralised.All())
 }
+
+func TestPop(t *testing.T) {
+	orig := collection.From([]int{1, 2, 3, 4, 5})
+	single := orig.Pop(1)
+
+	assert.Equal(t, []int{1, 2, 3, 4}, orig.All())
+	assert.Equal(t, []int{5}, single.All())
+
+	multi := orig.Pop(2)
+
+	assert.Equal(t, []int{1, 2}, orig.All())
+	assert.Equal(t, []int{3, 4}, multi.All())
+}
+
+func TestSplit(t *testing.T) {
+	values := collection.From([]int{1, 2, 3, 4, 5, 6}).Split(3)
+
+	assert.Equal(t, []int{1, 2, 3}, values[0].All())
+	assert.Equal(t, []int{4, 5, 6}, values[1].All())
+}
