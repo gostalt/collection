@@ -258,3 +258,8 @@ func TestEmpty(t *testing.T) {
 	falsy := collection.From([]int{1}).Empty()
 	assert.Equal(t, false, falsy)
 }
+
+func TestPrepend(t *testing.T) {
+	col := collection.From([]int{2, 3, 4, 5}).Prepend(1)
+	assert.Equal(t, []int{1, 2, 3, 4, 5}, col.All())
+}

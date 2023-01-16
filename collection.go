@@ -135,6 +135,10 @@ func (c collection[T]) Append(value ...T) collection[T] {
 	return c
 }
 
+func (c collection[T]) Prepend(value ...T) collection[T] {
+	return From(value).Append(c.All()...)
+}
+
 func (c collection[T]) At(i int) T {
 	v, _ := c.SafeAt(i)
 	return v
