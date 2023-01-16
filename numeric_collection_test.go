@@ -29,3 +29,9 @@ func TestMax(t *testing.T) {
 
 	assert.Equal(t, 8, max)
 }
+
+func TestSum(t *testing.T) {
+	sum := collection.FromNumeric([]int{1, 2, 3, 4}).Sum()
+
+	assert.Equal(t, 10, sum)
+}

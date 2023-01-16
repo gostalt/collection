@@ -75,3 +75,13 @@ func (c numericCollection[T]) Max() T {
 
 	return max
 }
+
+func (c numericCollection[T]) Sum() T {
+	var total T = 0
+
+	for _, v := range c.contents {
+		total = total + v
+	}
+
+	return total
+}
