@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/gostalt/collection"
+	"github.com/gostalt/collection/join"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -228,4 +229,15 @@ func TestDiff(t *testing.T) {
 	diff := first.Diff(collection.From([]int{2, 5}))
 
 	assert.Equal(t, []int{1, 3, 4}, diff.All())
+}
+
+func TestJoin(t *testing.T) {
+	cs := collection.From([]string{"first", "second", "third"}).Join(join.CommaSeparatedJoin)
+	assert.Equal(t, "first, second, third", cs)
+
+	list := collection.From([]string{"first", "second", "third"}).Join(join.ListJoin)
+	assert.Equal(t, "first, second and third", list)
+
+	custom := collection.From([]string{"first", "second", "third"}).Join(join.Method{Between: "… ", Final: " & "})
+	assert.Equal(t, "first… second & third", custom)
 }

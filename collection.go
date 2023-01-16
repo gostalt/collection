@@ -1,7 +1,10 @@
 package collection
 
 import (
+	"fmt"
 	"math"
+
+	"github.com/gostalt/collection/join"
 )
 
 type collection[T comparable] struct {
@@ -219,4 +222,27 @@ func (c collection[T]) Diff(comp collection[T]) collection[T] {
 			return value == v
 		})
 	})
+}
+
+func (c collection[T]) Join(format join.Method) string {
+	resp := ""
+
+	for i, v := range c.contents {
+		resp = resp + fmt.Sprintf("%v", v)
+		if i == c.Count()-1 {
+			continue
+		}
+		if i == c.Count()-2 {
+			if format.Final != "" {
+				resp = resp + format.Final
+			} else {
+				resp = resp + format.Between
+			}
+			continue
+		}
+
+		resp = resp + format.Between
+	}
+
+	return resp
 }
