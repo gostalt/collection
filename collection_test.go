@@ -241,3 +241,20 @@ func TestJoin(t *testing.T) {
 	custom := collection.From([]string{"first", "second", "third"}).Join(join.Method{Between: "… ", Final: " & "})
 	assert.Equal(t, "first… second & third", custom)
 }
+
+func TestFirstX(t *testing.T) {
+	two := collection.From([]int{1, 2, 3, 4, 5}).FirstX(2)
+	assert.Equal(t, collection.From([]int{1, 2}).All(), two.All())
+
+	one := collection.From([]int{1}).FirstX(2)
+	assert.Equal(t, 1, one.Count())
+	assert.Equal(t, collection.From([]int{1}).All(), one.All())
+}
+
+func TestEmpty(t *testing.T) {
+	truthy := collection.Make[string]().Empty()
+	assert.Equal(t, true, truthy)
+
+	falsy := collection.From([]int{1}).Empty()
+	assert.Equal(t, false, falsy)
+}

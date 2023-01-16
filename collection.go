@@ -11,6 +11,12 @@ type collection[T comparable] struct {
 	contents []T
 }
 
+func Make[T comparable]() collection[T] {
+	return collection[T]{
+		contents: []T{},
+	}
+}
+
 func From[T comparable](slice []T) collection[T] {
 	return collection[T]{
 		contents: slice,
@@ -29,7 +35,7 @@ func (c collection[T]) Slice() []T {
 }
 
 func (c collection[T]) Filter(predicate func(i int, v T) bool) collection[T] {
-	new := collection[T]{}
+	new := Make[T]()
 
 	for i, v := range c.contents {
 		if predicate(i, v) {
@@ -50,7 +56,7 @@ func (c collection[T]) First() T {
 // SafeFirst works in the same way as `First`, but returns a `collection.ErrNoItem`
 // if no item was found in the collection (i.e., the collection was empty).
 func (c collection[T]) SafeFirst() (T, error) {
-	if len(c.contents) == 0 {
+	if c.Empty() {
 		return *new(T), ErrNoItem
 	}
 
@@ -63,7 +69,7 @@ func (c collection[T]) Last() T {
 }
 
 func (c collection[T]) SafeLast() (T, error) {
-	if len(c.contents) == 0 {
+	if c.Empty() {
 		return *new(T), ErrNoItem
 	}
 
@@ -135,7 +141,7 @@ func (c collection[T]) At(i int) T {
 }
 
 func (c collection[T]) SafeAt(i int) (T, error) {
-	if len(c.contents) < i {
+	if c.Count() < i {
 		return *new(T), ErrNoItem
 	}
 
@@ -155,13 +161,11 @@ func (c collection[T]) Chan() <-chan T {
 }
 
 func (c collection[T]) Concat(val collection[T]) collection[T] {
-	new := c.Append(val.All()...)
-
-	return new
+	return c.Append(val.All()...)
 }
 
 func (c collection[T]) Chunk(per int) [][]T {
-	count := int(math.Ceil(float64(len(c.contents)) / float64(per)))
+	count := int(math.Ceil(float64(c.Count()) / float64(per)))
 	chunks := make([][]T, count)
 
 	for i := range chunks {
@@ -179,7 +183,7 @@ func (c collection[T]) Chunk(per int) [][]T {
 }
 
 func (c collection[T]) Unique() collection[T] {
-	new := collection[T]{}
+	new := Make[T]()
 
 	for _, v := range c.contents {
 		if new.HasNo(func(i int, value T) bool {
@@ -193,7 +197,7 @@ func (c collection[T]) Unique() collection[T] {
 }
 
 func (c collection[T]) Map(fn func(i int, value T) T) collection[T] {
-	new := collection[T]{}
+	new := Make[T]()
 
 	for i, v := range c.contents {
 		new = new.Append(fn(i, v))
@@ -204,16 +208,24 @@ func (c collection[T]) Map(fn func(i int, value T) T) collection[T] {
 
 func (c *collection[T]) Pop(count int) collection[T] {
 	split := c.Split(c.Count() - count)
-	c.contents = c.contents[:len(c.contents)-count]
+	c.contents = c.contents[:c.Count()-count]
 
 	return split[1]
 }
 
-func (c collection[T]) Split(i int) []collection[T] {
-	one := From(c.contents[:i])
-	two := From(c.contents[i:])
+func (c collection[T]) Before(i int) collection[T] {
+	return From(c.contents[:i])
+}
 
-	return []collection[T]{one, two}
+func (c collection[T]) After(i int) collection[T] {
+	return From(c.contents[i:])
+}
+
+func (c collection[T]) Split(i int) []collection[T] {
+	return []collection[T]{
+		c.Before(i),
+		c.After(i),
+	}
 }
 
 func (c collection[T]) Diff(comp collection[T]) collection[T] {
@@ -245,4 +257,23 @@ func (c collection[T]) Join(format join.Method) string {
 	}
 
 	return resp
+}
+
+// FirstX returns the first X items from the collection as a new collection. If
+// the collection has fewer than the requested number of items, the original
+// collection is returned.
+func (c collection[T]) FirstX(count int) collection[T] {
+	if c.Count() <= count {
+		return c
+	}
+
+	return From(c.contents[:count])
+}
+
+func (c collection[T]) Empty() bool {
+	if c.Count() == 0 {
+		return true
+	}
+
+	return false
 }
