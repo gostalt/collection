@@ -188,3 +188,17 @@ func TestUnique(t *testing.T) {
 
 	assert.Equal(t, []int{1, 2, 3}, orig.All())
 }
+
+func TestMap(t *testing.T) {
+	doubled := collection.From([]int{1, 2, 3, 4, 5}).Map(func(i int, value int) int {
+		return value * 2
+	})
+
+	assert.Equal(t, []int{2, 4, 6, 8, 10}, doubled.All())
+
+	pluralised := collection.From([]string{"lion", "tiger", "bear"}).Map(func(i int, value string) string {
+		return value + "s"
+	})
+
+	assert.Equal(t, []string{"lions", "tigers", "bears"}, pluralised.All())
+}

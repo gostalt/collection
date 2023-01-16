@@ -18,6 +18,13 @@ func (c collection[T]) All() []T {
 	return c.contents
 }
 
+// Slice returns the underlying data for the collection.
+//
+// An alias of `All`.
+func (c collection[T]) Slice() []T {
+	return c.All()
+}
+
 func (c collection[T]) Filter(predicate func(i int, v T) bool) collection[T] {
 	new := collection[T]{}
 
@@ -177,6 +184,16 @@ func (c collection[T]) Unique() collection[T] {
 		}) {
 			new.contents = append(new.contents, v)
 		}
+	}
+
+	return new
+}
+
+func (c collection[T]) Map(fn func(i int, value T) T) collection[T] {
+	new := collection[T]{}
+
+	for i, v := range c.contents {
+		new = new.Append(fn(i, v))
 	}
 
 	return new
