@@ -12,15 +12,15 @@ type numeric interface {
 	i | f
 }
 
-type numericCollection[T numeric] struct {
-	collection[T]
+type NumericCollection[T numeric] struct {
+	Collection[T]
 }
 
 // FromNumeric creates a new numericCollection from the provided slice.
-func FromNumeric[T numeric](slice []T) numericCollection[T] {
+func FromNumeric[T numeric](slice []T) NumericCollection[T] {
 	c := From(slice)
 
-	return numericCollection[T]{
+	return NumericCollection[T]{
 		c,
 	}
 }
@@ -31,7 +31,7 @@ func FromNumeric[T numeric](slice []T) numericCollection[T] {
 //
 // Specifying a range where the first parameter is larger than the last parameter
 // results in a decrementing range.
-func FromRange(first int, last int) numericCollection[int] {
+func FromRange(first int, last int) NumericCollection[int] {
 	desc := false
 	if first > last {
 		first, last = last, first
@@ -52,12 +52,12 @@ func FromRange(first int, last int) numericCollection[int] {
 }
 
 // Average returns a mean average of the collection.
-func (c numericCollection[T]) Average() float64 {
+func (c NumericCollection[T]) Average() float64 {
 	return c.Average64()
 }
 
 // Average32 returns a mean average of the collection, as a float32 type.
-func (c numericCollection[T]) Average32() float32 {
+func (c NumericCollection[T]) Average32() float32 {
 	var sum T
 	count := len(c.contents)
 
@@ -69,7 +69,7 @@ func (c numericCollection[T]) Average32() float32 {
 }
 
 // Average64 returns a mean average of the collection, as a float64 type.
-func (c numericCollection[T]) Average64() float64 {
+func (c NumericCollection[T]) Average64() float64 {
 	var sum T
 	count := len(c.contents)
 
@@ -82,7 +82,7 @@ func (c numericCollection[T]) Average64() float64 {
 
 // Min returns the smallest number in the collection. If the collection is empty,
 // a zero value is returned.
-func (c numericCollection[T]) Min() T {
+func (c NumericCollection[T]) Min() T {
 	if c.Empty() {
 		return 0
 	}
@@ -100,7 +100,7 @@ func (c numericCollection[T]) Min() T {
 
 // Max returns the largest number in the collection. If the collection is empty,
 // a zero value is returned.
-func (c numericCollection[T]) Max() T {
+func (c NumericCollection[T]) Max() T {
 	if c.Empty() {
 		return 0
 	}
@@ -117,7 +117,7 @@ func (c numericCollection[T]) Max() T {
 }
 
 // Sum returns the total value of all of the values inside the collection.
-func (c numericCollection[T]) Sum() T {
+func (c NumericCollection[T]) Sum() T {
 	var total T = 0
 
 	for _, v := range c.contents {

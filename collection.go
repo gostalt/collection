@@ -9,39 +9,39 @@ import (
 	"github.com/gostalt/collection/join"
 )
 
-type collection[T comparable] struct {
+type Collection[T comparable] struct {
 	contents []T
 }
 
 // Make returns a new empty collection of type T.
-func Make[T comparable]() collection[T] {
-	return collection[T]{
+func Make[T comparable]() Collection[T] {
+	return Collection[T]{
 		contents: []T{},
 	}
 }
 
 // From returns a new collection from the provided slice.
-func From[T comparable](slice []T) collection[T] {
-	return collection[T]{
+func From[T comparable](slice []T) Collection[T] {
+	return Collection[T]{
 		contents: slice,
 	}
 }
 
 // All returns the underlying data for the collection.
-func (c collection[T]) All() []T {
+func (c Collection[T]) All() []T {
 	return c.contents
 }
 
 // Slice returns the underlying data for the collection.
 //
 // An alias of `All`.
-func (c collection[T]) Slice() []T {
+func (c Collection[T]) Slice() []T {
 	return c.All()
 }
 
 // Filter uses the provided predicate to filter the collection, keeping only the
 // items for which the predicate returns true.
-func (c collection[T]) Filter(predicate func(i int, v T) bool) collection[T] {
+func (c Collection[T]) Filter(predicate func(i int, v T) bool) Collection[T] {
 	new := Make[T]()
 
 	for i, v := range c.All() {
@@ -55,27 +55,27 @@ func (c collection[T]) Filter(predicate func(i int, v T) bool) collection[T] {
 
 // First returns the first item in the collection. If the collection is empty, a
 // zero value of the underlying collection type is returned.
-func (c collection[T]) First() T {
+func (c Collection[T]) First() T {
 	v, _ := c.SafeFirst()
 	return v
 }
 
 // SafeFirst works in the same way as First, but returns a collection.ErrNoItem
 // if no item was found in the collection (i.e., the collection was empty).
-func (c collection[T]) SafeFirst() (T, error) {
+func (c Collection[T]) SafeFirst() (T, error) {
 	return c.SafeAt(0)
 }
 
 // Last returns the last item in the collection. If the collection is empty, a zero
 // value of the underlying collection type is returned.
-func (c collection[T]) Last() T {
+func (c Collection[T]) Last() T {
 	v, _ := c.SafeLast()
 	return v
 }
 
 // SafeLast works in the same was as Last, but returns a collection.ErrNoItem if
 // no item was found in the collection (i.e., the collection was empty).
-func (c collection[T]) SafeLast() (T, error) {
+func (c Collection[T]) SafeLast() (T, error) {
 	if c.Empty() {
 		return *new(T), ErrNoItem
 	}
@@ -85,7 +85,7 @@ func (c collection[T]) SafeLast() (T, error) {
 
 // FirstWhere returns the first item from the collection that matches the provided
 // predicate.
-func (c collection[T]) FirstWhere(predicate func(i int, value T) bool) T {
+func (c Collection[T]) FirstWhere(predicate func(i int, value T) bool) T {
 	for i, v := range c.All() {
 		if predicate(i, v) {
 			return v
@@ -103,7 +103,7 @@ func (c collection[T]) FirstWhere(predicate func(i int, value T) bool) T {
 
 // Has returns true if the collection contains any item that matches the provided
 // predicate. If no nothing matches, or collection is empty, false is returned.
-func (c collection[T]) Has(predicate func(i int, value T) bool) bool {
+func (c Collection[T]) Has(predicate func(i int, value T) bool) bool {
 	for i, v := range c.All() {
 		if predicate(i, v) {
 			return true
@@ -116,7 +116,7 @@ func (c collection[T]) Has(predicate func(i int, value T) bool) bool {
 // Has no returns true if the collection does not contain an item that matches the
 // provided predicate. If nothing matches, or the collection is empty, true is
 // returned.
-func (c collection[T]) HasNo(predicate func(i int, value T) bool) bool {
+func (c Collection[T]) HasNo(predicate func(i int, value T) bool) bool {
 	for i, v := range c.All() {
 		if predicate(i, v) {
 			return false
@@ -127,13 +127,13 @@ func (c collection[T]) HasNo(predicate func(i int, value T) bool) bool {
 }
 
 // Count returns the total length of the collection.
-func (c collection[T]) Count() int {
+func (c Collection[T]) Count() int {
 	return len(c.All())
 }
 
 // CountWhere returns the number of items in the collection that match the given
 // predicate.
-func (c collection[T]) CountWhere(predicate func(i int, value T) bool) int {
+func (c Collection[T]) CountWhere(predicate func(i int, value T) bool) int {
 	count := 0
 
 	for i, v := range c.All() {
@@ -146,27 +146,27 @@ func (c collection[T]) CountWhere(predicate func(i int, value T) bool) int {
 }
 
 // Append adds the given values to the end of the collection.
-func (c collection[T]) Append(value ...T) collection[T] {
+func (c Collection[T]) Append(value ...T) Collection[T] {
 	c.contents = append(c.All(), value...)
 
 	return c
 }
 
 // Prepend adds the given values to the start of the collection.
-func (c collection[T]) Prepend(value ...T) collection[T] {
+func (c Collection[T]) Prepend(value ...T) Collection[T] {
 	return From(value).Append(c.All()...)
 }
 
 // At returns the item at the given index. If the index does not exist in the
 // collection, a zero value is returned.
-func (c collection[T]) At(i int) T {
+func (c Collection[T]) At(i int) T {
 	v, _ := c.SafeAt(i)
 	return v
 }
 
 // SafeAt returns the item at the given index. If the index does not exist in the
 // collection, a zero value is returned along with collection.ErrNoItem.
-func (c collection[T]) SafeAt(i int) (T, error) {
+func (c Collection[T]) SafeAt(i int) (T, error) {
 	if c.Empty() || c.Count() < i {
 		return *new(T), ErrNoItem
 	}
@@ -175,10 +175,10 @@ func (c collection[T]) SafeAt(i int) (T, error) {
 }
 
 // Chan returns a readonly channel for consuming values from the collection.
-func (c collection[T]) Chan() <-chan T {
+func (c Collection[T]) Chan() <-chan T {
 	ch := make(chan T)
 
-	go func(ch chan<- T, c collection[T]) {
+	go func(ch chan<- T, c Collection[T]) {
 		for i := 0; i < c.Count(); i++ {
 			ch <- c.At(i)
 		}
@@ -189,7 +189,7 @@ func (c collection[T]) Chan() <-chan T {
 
 // Concat appends the given collection's values to the end of the existing
 // collection.
-func (c collection[T]) Concat(val collection[T]) collection[T] {
+func (c Collection[T]) Concat(val Collection[T]) Collection[T] {
 	return c.Append(val.All()...)
 }
 
@@ -199,7 +199,7 @@ func (c collection[T]) Concat(val collection[T]) collection[T] {
 // collection (i.e., collection[collection[T]]). If you wish to continue working
 // with collections with the returned chunks, you'll need to use From to turn
 // them back into collections.
-func (c collection[T]) Chunk(per int) [][]T {
+func (c Collection[T]) Chunk(per int) [][]T {
 	count := int(math.Ceil(float64(c.Count()) / float64(per)))
 	chunks := make([][]T, count)
 
@@ -218,7 +218,7 @@ func (c collection[T]) Chunk(per int) [][]T {
 }
 
 // Unique returns all the unique items from the collection.
-func (c collection[T]) Unique() collection[T] {
+func (c Collection[T]) Unique() Collection[T] {
 	new := Make[T]()
 
 	for _, v := range c.All() {
@@ -234,7 +234,7 @@ func (c collection[T]) Unique() collection[T] {
 
 // Map iterates through each item of the collection and uses the given function
 // to transform the item.
-func (c collection[T]) Map(fn func(i int, value T) T) collection[T] {
+func (c Collection[T]) Map(fn func(i int, value T) T) Collection[T] {
 	new := Make[T]()
 
 	for i, v := range c.contents {
@@ -245,7 +245,7 @@ func (c collection[T]) Map(fn func(i int, value T) T) collection[T] {
 }
 
 // Pop removes and returns items from the end of the collection.
-func (c *collection[T]) Pop(count int) collection[T] {
+func (c *Collection[T]) Pop(count int) Collection[T] {
 	split := c.Split(c.Count() - count)
 	c.contents = c.All()[:c.Count()-count]
 
@@ -253,18 +253,18 @@ func (c *collection[T]) Pop(count int) collection[T] {
 }
 
 // Before returns the items before the provided index.
-func (c collection[T]) Before(i int) collection[T] {
+func (c Collection[T]) Before(i int) Collection[T] {
 	return From(c.All()[:i])
 }
 
 // After returns the items after the provided index.
-func (c collection[T]) After(i int) collection[T] {
+func (c Collection[T]) After(i int) Collection[T] {
 	return From(c.All()[i:])
 }
 
 // Split returns two collections, split on the given index.
-func (c collection[T]) Split(i int) []collection[T] {
-	return []collection[T]{
+func (c Collection[T]) Split(i int) []Collection[T] {
+	return []Collection[T]{
 		c.Before(i),
 		c.After(i),
 	}
@@ -272,7 +272,7 @@ func (c collection[T]) Split(i int) []collection[T] {
 
 // Diff returns the values from the original collection that are not found in the
 // given collection.
-func (c collection[T]) Diff(comp collection[T]) collection[T] {
+func (c Collection[T]) Diff(comp Collection[T]) Collection[T] {
 	return c.Filter(func(i int, v T) bool {
 		return comp.HasNo(func(i int, value T) bool {
 			return value == v
@@ -286,7 +286,7 @@ func (c collection[T]) Diff(comp collection[T]) collection[T] {
 // Two standard join methods are provided by the join package:
 //   - join.CommaSeparatedJoin, which would result in: "1, 2, 3"
 //   - join.ListJoin, which would result in "1, 2 and 3"
-func (c collection[T]) Join(format join.Method) string {
+func (c Collection[T]) Join(format join.Method) string {
 	resp := ""
 
 	for i, v := range c.All() {
@@ -312,7 +312,7 @@ func (c collection[T]) Join(format join.Method) string {
 // FirstX returns the first X items from the collection as a new collection. If
 // the collection has fewer than the requested number of items, the original
 // collection is returned.
-func (c collection[T]) FirstX(count int) collection[T] {
+func (c Collection[T]) FirstX(count int) Collection[T] {
 	if c.Count() <= count {
 		return c
 	}
@@ -321,7 +321,7 @@ func (c collection[T]) FirstX(count int) collection[T] {
 }
 
 // Empty returns true if the collection contains no items.
-func (c collection[T]) Empty() bool {
+func (c Collection[T]) Empty() bool {
 	if c.Count() == 0 {
 		return true
 	}
@@ -330,7 +330,7 @@ func (c collection[T]) Empty() bool {
 }
 
 // NotEmpty returns true if the collection contains items.
-func (c collection[T]) NotEmpty() bool {
+func (c Collection[T]) NotEmpty() bool {
 	return !c.Empty()
 }
 
@@ -338,7 +338,7 @@ func (c collection[T]) NotEmpty() bool {
 // collection. Elements can be picked more than once. Because random elements
 // are picked, the count parameter can be larger than the total size of
 // the collection.
-func (c collection[T]) Random(r *rand.Rand, count int) collection[T] {
+func (c Collection[T]) Random(r *rand.Rand, count int) Collection[T] {
 	new := From(make([]T, count))
 	for i := range new.All() {
 		new.Set(i, c.random(r))
@@ -348,7 +348,7 @@ func (c collection[T]) Random(r *rand.Rand, count int) collection[T] {
 }
 
 // random returns a single item from the underlying contents of the collection.
-func (c collection[T]) random(r *rand.Rand) T {
+func (c Collection[T]) random(r *rand.Rand) T {
 	return c.At(r.Intn(c.Count()))
 }
 
@@ -356,7 +356,7 @@ func (c collection[T]) random(r *rand.Rand) T {
 // range for the collection's underlying slice, the slice is expanded to allow
 // the value to be set. Use `SafeSet` to prevent this behaviour and return
 // an error if out of bounds.
-func (c *collection[T]) Set(index int, value T) {
+func (c *Collection[T]) Set(index int, value T) {
 	if c.Count() >= index {
 		c.contents[index] = value
 		return
@@ -374,7 +374,7 @@ func (c *collection[T]) Set(index int, value T) {
 // SafeSet updates the value at the given index to value. If the given index is
 // out of range for the collection's underlying slice, an error is returned and
 // the collection is not modified.
-func (c *collection[T]) SafeSet(index int, value T) error {
+func (c *Collection[T]) SafeSet(index int, value T) error {
 	if c.Count() < index {
 		return ErrIndexOutOfRange
 	}
@@ -386,7 +386,7 @@ func (c *collection[T]) SafeSet(index int, value T) error {
 
 // Each iterates over each item inside the collection and passes the index and value
 // to the provided func.
-func (c collection[T]) Each(fn func(i int, value T)) {
+func (c Collection[T]) Each(fn func(i int, value T)) {
 	for i, v := range c.All() {
 		fn(i, v)
 	}
@@ -394,7 +394,7 @@ func (c collection[T]) Each(fn func(i int, value T)) {
 
 // EachCtx iterates over each item inside the collection and passes the index and
 // value to the provided func. If the given context is Done, the iteration stops.
-func (c collection[T]) EachCtx(ctx context.Context, fn func(i int, value T)) {
+func (c Collection[T]) EachCtx(ctx context.Context, fn func(i int, value T)) {
 	for i, v := range c.All() {
 		select {
 		case <-ctx.Done():
@@ -406,7 +406,7 @@ func (c collection[T]) EachCtx(ctx context.Context, fn func(i int, value T)) {
 }
 
 // Every returns true if all items inside the collection satisfy the given predicate.
-func (c collection[T]) Every(predicate func(i int, value T) bool) bool {
+func (c Collection[T]) Every(predicate func(i int, value T) bool) bool {
 	for i, v := range c.contents {
 		if !predicate(i, v) {
 			return false
@@ -417,7 +417,7 @@ func (c collection[T]) Every(predicate func(i int, value T) bool) bool {
 }
 
 // Reverse returns a new collection with the values in reverse order.
-func (c collection[T]) Reverse() collection[T] {
+func (c Collection[T]) Reverse() Collection[T] {
 	new := From(make([]T, c.Count()))
 
 	c.Each(func(i int, value T) {
@@ -429,14 +429,14 @@ func (c collection[T]) Reverse() collection[T] {
 
 // Search returns the index of the first item that matches the given predicate.
 // If no item is found, -1 is returned.
-func (c collection[T]) Search(fn func(i int, value T) bool) int {
+func (c Collection[T]) Search(fn func(i int, value T) bool) int {
 	v, _ := c.SafeSearch(fn)
 	return v
 }
 
 // SafeSearch returns the index of the first item that matches the given predicate.
 // If no item is found, -1 and collection.ErrNoItem is returned.
-func (c collection[T]) SafeSearch(fn func(i int, value T) bool) (int, error) {
+func (c Collection[T]) SafeSearch(fn func(i int, value T) bool) (int, error) {
 	for i, v := range c.All() {
 		if fn(i, v) {
 			return i, nil
