@@ -1,6 +1,8 @@
 package collection_test
 
 import (
+	"context"
+	"math/rand"
 	"testing"
 
 	"github.com/gostalt/collection"
@@ -86,6 +88,12 @@ func TestHas(t *testing.T) {
 	})
 
 	assert.Equal(t, false, failure)
+
+	empty := collection.From([]string{}).Has(func(i int, value string) bool {
+		return value == "anything"
+	})
+
+	assert.Equal(t, false, empty)
 }
 
 func TestHasNo(t *testing.T) {
@@ -100,6 +108,12 @@ func TestHasNo(t *testing.T) {
 	})
 
 	assert.Equal(t, true, success)
+
+	empty := collection.From([]string{}).HasNo(func(i int, value string) bool {
+		return value == "anything"
+	})
+
+	assert.Equal(t, true, empty)
 }
 
 func TestCount(t *testing.T) {
@@ -259,7 +273,124 @@ func TestEmpty(t *testing.T) {
 	assert.Equal(t, false, falsy)
 }
 
+func TestNotEmpty(t *testing.T) {
+	falsy := collection.Make[string]().NotEmpty()
+	assert.Equal(t, false, falsy)
+
+	truthy := collection.From([]int{1}).NotEmpty()
+	assert.Equal(t, true, truthy)
+}
+
 func TestPrepend(t *testing.T) {
 	col := collection.From([]int{2, 3, 4, 5}).Prepend(1)
 	assert.Equal(t, []int{1, 2, 3, 4, 5}, col.All())
+}
+
+func TestSet(t *testing.T) {
+	col := collection.From([]int{1, 2, 5})
+	col.Set(2, 3)
+	assert.Equal(t, []int{1, 2, 3}, col.All())
+
+	col.Set(4, 5)
+	assert.Equal(t, []int{1, 2, 3, 0, 5}, col.All())
+}
+
+func TestSafeSet(t *testing.T) {
+	col := collection.From([]int{1, 2, 5})
+	err := col.SafeSet(2, 3)
+	assert.NoError(t, err)
+	assert.Equal(t, []int{1, 2, 3}, col.All())
+
+	err = col.SafeSet(4, 5)
+	assert.ErrorIs(t, err, collection.ErrIndexOutOfRange)
+	assert.Equal(t, []int{1, 2, 3}, col.All())
+}
+
+func TestEach(t *testing.T) {
+	col := collection.From([]int{1, 2, 3, 4, 5})
+	incr := 0
+
+	col.Each(func(i int, value int) {
+		incr = incr + value
+	})
+
+	assert.Equal(t, 15, incr)
+}
+
+func TestEachCtx(t *testing.T) {
+	col := collection.From([]int{1, 2, 3, 4, 5})
+	incr := 0
+	ctx, cancel := context.WithCancel(context.Background())
+
+	col.EachCtx(ctx, func(i int, value int) {
+		incr = incr + value
+		if value == 3 {
+			cancel()
+		}
+	})
+
+	assert.Equal(t, 6, incr)
+}
+
+func TestEvery(t *testing.T) {
+	truthy := collection.From([]int{1, 3, 5, 7, 9}).Every(func(i int, value int) bool {
+		return value%2 == 1
+	})
+	assert.Equal(t, true, truthy)
+
+	falsy := collection.From([]string{"dog", "cat", "lion"}).Every(func(i int, value string) bool {
+		return len(value) == 3
+	})
+	assert.Equal(t, false, falsy)
+
+	empty := collection.Make[string]().Every(func(i int, value string) bool {
+		return false
+	})
+	assert.Equal(t, true, empty)
+}
+
+func TestRandom(t *testing.T) {
+	s := rand.NewSource(1)
+	r := rand.New(s)
+
+	col := collection.From([]int{1, 2, 3, 4, 5})
+
+	assert.Equal(t, []int{2, 3}, col.Random(r, 2).All())
+	assert.Equal(t, []int{3, 5}, col.Random(r, 2).All())
+	assert.Equal(t, []int{2, 4, 1, 1, 2, 1, 5, 2, 3, 5}, col.Random(r, 10).All())
+}
+
+func TestReverse(t *testing.T) {
+	col := collection.From([]int{1, 2, 3, 4, 5})
+	assert.Equal(t, []int{5, 4, 3, 2, 1}, col.Reverse().All())
+}
+
+func TestSearch(t *testing.T) {
+	res := collection.FromRange(1, 5).Search(func(i int, value int) bool {
+		return value == 3
+	})
+
+	assert.Equal(t, 2, res)
+
+	notFound := collection.FromRange(1, 5).Search(func(i int, value int) bool {
+		return value == 12
+	})
+
+	assert.Equal(t, -1, notFound)
+}
+
+func TestSafeSearch(t *testing.T) {
+	res, err := collection.FromRange(1, 5).SafeSearch(func(i int, value int) bool {
+		return value == 3
+	})
+
+	assert.NoError(t, err)
+	assert.Equal(t, 2, res)
+
+	notFound, err := collection.FromRange(1, 5).SafeSearch(func(i int, value int) bool {
+		return value == 12
+	})
+
+	assert.ErrorIs(t, err, collection.ErrNoItem)
+	assert.Equal(t, -1, notFound)
 }

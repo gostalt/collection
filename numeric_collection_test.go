@@ -35,3 +35,10 @@ func TestSum(t *testing.T) {
 
 	assert.Equal(t, 10, sum)
 }
+
+func TestFromRange(t *testing.T) {
+	assert.Equal(t, []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, collection.FromRange(1, 10).All())
+	assert.Equal(t, []int{4}, collection.FromRange(4, 4).All())
+	assert.Equal(t, []int{2, 3, 4, 5}, collection.FromRange(2, 5).All())
+	assert.Equal(t, []int{5, 4, 3, 2}, collection.FromRange(5, 2).All())
+}
